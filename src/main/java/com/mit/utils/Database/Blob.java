@@ -9,8 +9,8 @@ public class Blob extends MitObjects{
     public String type(){
         return "blob";
     }
-    public String toString(){
-        return this.data.toString();
+    public byte[] toBytes(){
+        return this.data.getBytes();
     }
 
 }

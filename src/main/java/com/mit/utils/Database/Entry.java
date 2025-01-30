@@ -1,5 +1,6 @@
 package utils.Database;
 
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -50,8 +51,11 @@ public class Entry extends MitObjects{
     public Path basename(){ 
         return name.getFileName();
     }
-    @Override
-    public String toString(){
-        return stat+" "+name.getFileName()+"\0"+getOid()+"\0";
+    public byte[] toBytes(){
+        String header = stat+" "+name.getFileName()+"\0";
+        ByteBuffer buffer = ByteBuffer.allocate(header.length()+21);
+        buffer.put(header.getBytes());
+        buffer.put(hex_to_byte(getOid()));
+        return buffer.array();
     }
 }

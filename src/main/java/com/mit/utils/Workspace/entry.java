@@ -1,0 +1,45 @@
+package utils.Workspace;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+
+public class entry {
+    final int REGULAR_MODE = 0100644;       // Octal Value
+    final int EXECUTABLE_MODE = 0100755;    // Octal Value
+    final int MAX_FILE_SIZE = 0xfff;        
+    public entry_fields fields = new entry_fields();
+
+    public entry(){
+
+    }
+
+    public entry create(Path name,String Oid,BasicFileAttributes stat){
+        fields.path = name.getFileName().toString();
+        fields.FLAG = (short)Math.min(fields.path.getBytes().length, MAX_FILE_SIZE);
+        fields.CTIME = stat.creationTime().toMillis();
+        fields.MTIME = stat.lastModifiedTime().toMillis();
+        if(stat.isRegularFile()){
+            fields.MODE = REGULAR_MODE;
+        }else{
+            System.out.println("EXE");
+            fields.MODE = EXECUTABLE_MODE;
+        }
+        fields.SIZE = (int)stat.size();
+        fields.OID = Oid;
+        return this;
+    }
+
+    public static void main(String[] args){
+        Path path = Paths.get("D:/workspace/first-repo/file.txt");
+        try {
+            BasicFileAttributes stat = Files.readAttributes(path, BasicFileAttributes.class);
+            entry en = new entry();
+            en = en.create(path,"unique-id",stat);
+            System.out.println(en.fields.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

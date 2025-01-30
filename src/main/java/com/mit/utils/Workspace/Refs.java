@@ -20,7 +20,7 @@ public class Refs {
             if(!Files.exists(head_path())){
                 Files.createFile(head_path());
             }
-            Lockfile lock = new Lockfile(this.pathname);
+            Lockfile lock = new Lockfile(this.pathname,"HEAD");
             ByteBuffer buffer = ByteBuffer.wrap(content.getBytes());
             if(lock.aquire_lock()){
                 lock.write(buffer);

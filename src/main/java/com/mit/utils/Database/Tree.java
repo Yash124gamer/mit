@@ -1,5 +1,7 @@
 package utils.Database;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -70,17 +72,30 @@ public class Tree extends MitObjects{
         }
         block.accept(this);
     }
-    public String toString(){
-        StringBuilder string = new StringBuilder();
+    private byte[] tree_bytes(Path file_name,Tree value){
+        String header = mode()+" "+file_name+"\0";
+        ByteBuffer buffer = ByteBuffer.allocate(header.length()+20);
+        buffer.put(header.getBytes());
+        buffer.put(hex_to_byte(value.getOid()));
+        // buffer.put("\0".getBytes());
+        return buffer.array();
+    }
+    public byte[] toBytes(){
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         for(Map.Entry<Path, MitObjects> entry : entries.entrySet()){
             MitObjects value = entry.getValue();
-            if (value instanceof Tree){
-                Path p = entry.getKey();
-                string.append(mode()+" "+p.getFileName()+"0"+value.getOid()+"\0");
-            }else{
-                string.append(((Entry) value).toString());
+            try {
+                if (value instanceof Tree){
+                    buffer.write(tree_bytes(entry.getKey().getFileName(),(Tree)value));
+                }else{
+                    byte[] temp = ((Entry)value).toBytes();
+                    // buffer.write(((Entry)value).toBytes());
+                    buffer.write(temp, 0, temp.length);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-        return string.toString();
+        return buffer.toByteArray();
     }
 }

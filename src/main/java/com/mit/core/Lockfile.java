@@ -11,9 +11,9 @@ public class Lockfile {
     private Path path,lockpath;
     private FileChannel lock=null;
 
-    public Lockfile(Path path){
-        this.path = path.resolve("HEAD");
-        this.lockpath = path.resolve("HEAD.lock");
+    public Lockfile(Path path,String file){
+        this.path = path.resolve(file);
+        this.lockpath = path.resolve(file+".lock");
     }
     public boolean isLocked(){
         if(lock == null)
@@ -58,7 +58,7 @@ public class Lockfile {
                 Files.move(lockpath, path, StandardCopyOption.REPLACE_EXISTING);                
                 lock = null;
             } catch (Exception e) {
-                
+                e.printStackTrace();
             }
             
         }

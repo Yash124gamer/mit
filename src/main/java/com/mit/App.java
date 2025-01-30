@@ -1,6 +1,7 @@
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -13,6 +14,7 @@ import utils.Database.Entry;
 import utils.Database.Database;
 import utils.FileHandler.Config;
 import utils.FileHandler.File;
+import utils.Workspace.Index;
 import utils.Workspace.Refs;
 import utils.Workspace.Workspace;
 
@@ -45,12 +47,51 @@ class App{
                 fu.createDirectories(new String[]{"objects","refs"});
                 System.out.println("Initialized empty mit repository in "+currentPath);
             break;
+            case "add":
+                // Checking if user has specified a directory path for initialising repository
+                List<Path> filePaths = new ArrayList<>();
+                if (args.length< 2){
+                    System.out.println("Please provide a proper filename or file path to be added");
+                    return;
+                }else if(args[1].equals("-a")){
+                    Workspace workspace = new Workspace(currentPath); 
+                    filePaths = workspace.listFiles();
+                }else{
+                    Path file = Paths.get(args[1]);
+                    // Checking if the provided file path exist or not
+                    if (!Files.exists(currentPath.resolve(file))){
+                        System.out.println("The "+file.toString()+" does not exist");
+                        return;
+                    }
+                    filePaths.add(file);
+                }
+                filePaths.sort(null);
+                Path mitPath = currentPath.resolve(".mit");
+                    Database DB = new Database(mitPath.resolve("objects"));
+                    Workspace wk = new Workspace(currentPath);  
+                    Index index = new Index(mitPath);
+                for (Path path : filePaths) {
+                    if (!Files.exists(currentPath.resolve(path))){
+                        continue;
+                    }
+                    String data = wk.readFile(path);
+                    try {
+                        BasicFileAttributes stat = Files.readAttributes(currentPath.resolve(path), BasicFileAttributes.class);
+                        Blob blob = new Blob(data);
+                        DB.store(blob);
+                        index.add(path,blob.getOid(),stat);
+                        index.write_updates();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            break;
             case "commit":
                 Path mit_path = currentPath.resolve(".mit");
                 Path db_path = mit_path.resolve("objects");
                 Refs ref = new Refs(mit_path);
                 Database db = new Database(db_path);
-                Workspace workspace = new Workspace(Paths.get("D:/workspace/first-repo"));  
+                Workspace workspace = new Workspace(currentPath);  
                 if(!Files.exists(workspace.path.resolve(".mit"))){
                     System.out.println("not a mit repository (or any of the parent directories)");
                     return;
@@ -63,7 +104,7 @@ class App{
                         Blob blob = new Blob(data);
                         db.store(blob);
                         entries.add(new Entry(path, blob.getOid()));
-                    } else if (Files.isDirectory(currentPath.resolve(path)) || path.toString().contains("/") && path.isAbsolute()) { // Treat "New folder/as" as a directory.
+                    } else if (Files.isDirectory(currentPath.resolve(path)) || path.toString().contains("/") && path.isAbsolute()) { 
                         entries.add(new Entry(path, "",true));
                     }
                 }

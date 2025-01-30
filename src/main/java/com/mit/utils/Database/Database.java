@@ -2,13 +2,14 @@ package utils.Database;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.security.MessageDigest;
 import java.util.Random;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
+
+import utils.Hasher;
 import utils.FileHandler.File;
 
 public class Database {
@@ -21,24 +22,16 @@ public class Database {
     }
 
     public void store(MitObjects obj){
-        String s = obj.toString();
-        byte[] byteArray = s.getBytes(StandardCharsets.UTF_8);
-        String content = obj.type()+" "+byteArray.length+"\0"+s;
-        System.out.println(content);
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] hashBytes = md.digest(content.getBytes());
-            StringBuilder hashString = new StringBuilder();
-            for (byte b : hashBytes) {
-                hashString.append(String.format("%02x", b)); // Format each byte as a two-character hex string
-            }
-            obj.setOid(hashString.toString());
-            write_object(obj.getOid(), content);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } 
+        byte[] s = obj.toBytes();
+        String header = obj.type()+" "+s.length+"\0";
+        ByteBuffer buffer = ByteBuffer.allocate(s.length+header.length());
+        buffer.put(header.getBytes());
+        buffer.put(s);
+        String hash = Hasher.hash(buffer.array());
+        obj.setOid(hash);
+        write_object(obj.getOid(), buffer.array());
     }
-    private void write_object(String Oid,String content){
+    private void write_object(String Oid,byte[] content){
         File fu = new File(path);
         String dir = Oid.substring(0, 2);
         String file = Oid.substring(2);
@@ -56,10 +49,8 @@ public class Database {
         }
         return id.toString();
     }
-    private byte[] compress(String content) {
+    private byte[] compress(byte[] input) {
         try {
-            // Convert the content string to bytes
-            byte[] input = content.getBytes("UTF-8");
 
             // Create a Deflater with the BEST_SPEED level
             Deflater deflater = new Deflater(Deflater.BEST_SPEED);
