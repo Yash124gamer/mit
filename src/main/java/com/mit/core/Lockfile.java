@@ -23,6 +23,15 @@ public class Lockfile {
     }
     public boolean aquire_lock(){
         if(!isLocked()){
+            // Checking if a .lock file already exist 
+            if(Files.exists(lockpath)){
+                throw new RuntimeException("Another git process seems to be running in this repository, e.g.\r\n" + //
+                                    "an editor opened by 'git commit'. Please make sure all processes\r\n" + //
+                                    "are terminated then try again. If it still fails, a git process\r\n" + //
+                                    "may have crashed in this repository earlier:\r\n" + //
+                                    "remove the file manually to continue"
+                            );
+            }
             try {
                 FileChannel fileChannel = FileChannel.open(
                     lockpath,
@@ -35,7 +44,7 @@ public class Lockfile {
             }catch(Exception e){
                 return false;
             }
-        }else{
+        }else{  
             return false;
         }
         

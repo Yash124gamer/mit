@@ -22,9 +22,14 @@ public class Refs {
             }
             Lockfile lock = new Lockfile(this.pathname,"HEAD");
             ByteBuffer buffer = ByteBuffer.wrap(content.getBytes());
-            if(lock.aquire_lock()){
-                lock.write(buffer);
-                lock.commit();
+            try {
+                if(lock.aquire_lock()){
+                    lock.write(buffer);
+                    lock.commit();
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                System.exit(0);
             }
         } catch (Exception e) {
             

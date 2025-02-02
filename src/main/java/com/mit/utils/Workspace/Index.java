@@ -41,18 +41,24 @@ public class Index {
     }
     // Funtion to write all the entries to the Index file
     public void write_updates(){
-        if(lock.aquire_lock()){
-            ByteBuffer header = ByteBuffer.allocate(8);
-            header.put("DIRC".getBytes());      // DIRC(DirectorrCahche) ,  4 bytes
-            header.putInt(this.entries.size()); // number of entries ,      4 bytes
-            header.flip();
-            lock.write(header);
-            entries.forEach((key,value)->{
-                ByteBuffer bf = ByteBuffer.wrap(value.fields.toByte());
-                lock.write(bf);
-            });
-            lock.commit();
-            changed = false; // All the changes in working area are now added to Index(Staging area)
+        try {
+            if(lock.aquire_lock()){
+                ByteBuffer header = ByteBuffer.allocate(8);
+                header.put("DIRC".getBytes());      // DIRC(DirectorrCahche) ,  4 bytes
+                header.putInt(this.entries.size()); // number of entries ,      4 bytes
+                header.flip();
+                lock.write(header);
+                entries.forEach((key,value)->{
+                    ByteBuffer bf = ByteBuffer.wrap(value.fields.toByte());
+                    lock.write(bf);
+                });
+                lock.commit();
+                changed = false; // All the changes in working area are now added to Index(Staging area)
+            }
+            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
         }
     }
     public void load_update(){
