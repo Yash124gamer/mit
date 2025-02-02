@@ -25,6 +25,9 @@ public class Entry extends MitObjects{
     public String getName(){
         return this.name.toString();
     }
+    public Path getPath(){
+        return this.name;
+    }
     //check if the filePath specified in name is a regular file or executable and update the stat of the file accordingly
     public String mode(){
         if(Files.isExecutable(this.name))
@@ -50,6 +53,9 @@ public class Entry extends MitObjects{
     // Retrieves the last element of the path
     public Path basename(){ 
         return name.getFileName();
+    }
+    public String toString(){
+        return getName()+" "+getOid();
     }
     public byte[] toBytes(){
         String header = stat+" "+name.getFileName()+"\0";

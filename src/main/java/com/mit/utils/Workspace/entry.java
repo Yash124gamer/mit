@@ -1,8 +1,6 @@
 package utils.Workspace;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 
 public class entry {
@@ -16,14 +14,13 @@ public class entry {
     }
 
     public entry create(Path name,String Oid,BasicFileAttributes stat){
-        fields.path = name.getFileName().toString();
+        fields.path = name.toString();
         fields.FLAG = (short)Math.min(fields.path.getBytes().length, MAX_FILE_SIZE);
         fields.CTIME = stat.creationTime().toMillis();
         fields.MTIME = stat.lastModifiedTime().toMillis();
         if(stat.isRegularFile()){
             fields.MODE = REGULAR_MODE;
         }else{
-            System.out.println("EXE");
             fields.MODE = EXECUTABLE_MODE;
         }
         fields.SIZE = (int)stat.size();
@@ -31,15 +28,4 @@ public class entry {
         return this;
     }
 
-    public static void main(String[] args){
-        Path path = Paths.get("D:/workspace/first-repo/file.txt");
-        try {
-            BasicFileAttributes stat = Files.readAttributes(path, BasicFileAttributes.class);
-            entry en = new entry();
-            en = en.create(path,"unique-id",stat);
-            System.out.println(en.fields.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

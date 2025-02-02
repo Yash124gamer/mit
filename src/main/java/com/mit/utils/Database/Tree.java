@@ -20,14 +20,6 @@ public class Tree extends MitObjects{
     public Tree(){
 
     }
-    // Build the tree from the list of entries
-    public static Tree build(List<Entry> entries) {
-        Tree root = new Tree(null);
-        for (Entry entry : entries) {
-            root.add_entry(entry.parent_directory(), entry,root);
-        }
-        return root;
-    }
     @Override
     public String type(){
         return "tree";
@@ -35,23 +27,7 @@ public class Tree extends MitObjects{
     private String mode(){
         return "40000";
     }
-    // Add the entry to the appropriate place in the tree structure
-    public void add_entry(List<Path> parents, Entry entry,Tree currentTree) {
-        if(parents.isEmpty()){
-            currentTree.entries.put(entry.basename(), entry);
-        }
-        else{
-            MitObjects obj = currentTree.entries.get(parents.get(0).getFileName());
-            if (obj instanceof Entry){
-                Tree subTree = new Tree();
-                add_entry(parents.subList(1,parents.size()), entry, subTree);
-                currentTree.entries.put(parents.get(0).getFileName(),subTree);
-            }else if(obj instanceof Tree){
-                Tree subtree = (Tree)obj;
-                add_entry(parents.subList(1,parents.size()), entry, subtree);
-            }
-        }
-    }
+    // returns A new map with entries sorted by the name of their paths
     public Map<Path, MitObjects> sortEntriesByPathName(Map<Path, MitObjects> entries) {
         return entries.entrySet()
                 .stream()
@@ -63,6 +39,7 @@ public class Tree extends MitObjects{
                         LinkedHashMap::new // Use LinkedHashMap to maintain sorted order
                 ));
     }
+    // Function that will recursively traverse the tree and execute a given command on it.
     public void Traverse(Consumer<Tree> block){
         for(Map.Entry<Path, MitObjects> entry : entries.entrySet()){
             MitObjects value = entry.getValue();
@@ -74,12 +51,12 @@ public class Tree extends MitObjects{
     }
     private byte[] tree_bytes(Path file_name,Tree value){
         String header = mode()+" "+file_name+"\0";
-        ByteBuffer buffer = ByteBuffer.allocate(header.length()+20);
+        ByteBuffer buffer = ByteBuffer.allocate(header.length()+21);
         buffer.put(header.getBytes());
         buffer.put(hex_to_byte(value.getOid()));
-        // buffer.put("\0".getBytes());
         return buffer.array();
     }
+    // return The byte array representation of the entries of the tree
     public byte[] toBytes(){
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         for(Map.Entry<Path, MitObjects> entry : entries.entrySet()){
@@ -89,7 +66,6 @@ public class Tree extends MitObjects{
                     buffer.write(tree_bytes(entry.getKey().getFileName(),(Tree)value));
                 }else{
                     byte[] temp = ((Entry)value).toBytes();
-                    // buffer.write(((Entry)value).toBytes());
                     buffer.write(temp, 0, temp.length);
                 }
             } catch (Exception e) {
@@ -97,5 +73,35 @@ public class Tree extends MitObjects{
             }
         }
         return buffer.toByteArray();
+    }
+    // Builds a tree structure from a list of entries
+    public void buildTree(List<Entry> entryList) {
+        for (Entry entry : entryList) {
+            Path filePath = entry.getPath();
+            Path parentPath = filePath.getParent(); // Extract folder name if exists
+
+            if (parentPath == null) {
+                // No parent -> Directly add the entry to ROOT TREE
+                entries.put(filePath, entry);
+            } else {
+                // Folder exists -> Add it to the correct Tree
+                Tree folderTree = (Tree) entries.computeIfAbsent(parentPath, k -> new Tree());
+                if (folderTree instanceof Tree) {
+                    folderTree.entries.put(filePath.getFileName(), entry);
+                }
+            }
+        }
+    }
+     // Print the tree (for testing)
+    public void printTree(String treeName) {
+        System.out.println(treeName + " TREE:");
+        for (Map.Entry<Path, MitObjects> entry : entries.entrySet()) {
+            if (entry.getValue() instanceof Entry) {
+                System.out.println(entry.getKey() + " -> Entry(" + ((Entry) entry.getValue()).getOid() + ")");
+            } else {
+                ((Tree)entry.getValue()).printTree(entry.getKey().toString());
+            }
+        }
+        System.out.println();
     }
 }
