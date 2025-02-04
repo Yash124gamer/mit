@@ -3,7 +3,9 @@ package utils.Database;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -74,7 +76,7 @@ public class Database {
             throw new RuntimeException("Error while compressing data", e);
         }
     }
-    public static String decompress(byte[] compressedData){
+    public byte[] decompress(byte[] compressedData){
         Inflater inflater = new Inflater();
         inflater.setInput(compressedData);
 
@@ -86,12 +88,19 @@ public class Database {
             while ((bytesRead = inflaterInputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
             }
-            return outputStream.toString("UTF-8");
+            return outputStream.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("Error while decompressing data", e);
         } finally {
             inflater.end();
         }
     }
-
+    public byte[] readObject(String Oid){
+        try {
+            byte[] data = decompress(Files.readAllBytes(path.resolve(Oid.substring(0, 2)+"/"+Oid.substring(2))));
+            return Arrays.copyOfRange(data, 7, data.length);
+        } catch (Exception e) {
+            throw new RuntimeException("Error while reading data from the object file",e);
+        }
+    }
 }

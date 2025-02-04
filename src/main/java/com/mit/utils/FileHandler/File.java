@@ -33,13 +33,16 @@ public class File {
     public void createFile(String filename, Path directory) {
         try {
             Path filePath = directory.resolve(filename);
-
+            // Check if the file is inside a folder
+            if (filePath.getParent() != null) {
+                Files.createDirectories(filePath.getParent());
+            }
             // Create the file
             if (!Files.exists(filePath)) {
                 Files.createFile(filePath);
             }
         } catch (IOException e) {
-            
+            e.printStackTrace();
         }
     }
     public void writeData(byte[] data,Path filePath){

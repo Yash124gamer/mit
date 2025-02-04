@@ -4,6 +4,7 @@ import java.nio.file.Paths;
 import commands.Add;
 import commands.Commit;
 import commands.Init;
+import commands.Revert;
 
 class App{
     public static void main(String[] args) {
@@ -28,6 +29,10 @@ class App{
             case "commit":
                 Commit commit = new Commit(currentPath);
                 commit.run(args);                
+            break;
+            case "revert":
+                Revert revert = new Revert(currentPath);
+                revert.run(args);
             break;
             // If User provides an unknown command
             default:
