@@ -12,7 +12,15 @@ public class entry {
     public entry(){
 
     }
-
+    public entry(long Mtime ,long Ctime,int mode,int size,String Oid,short flag,String path){
+        fields.CTIME = Ctime;
+        fields.MTIME = Mtime;
+        fields.MODE = mode;
+        fields.SIZE = size;
+        fields.OID = Oid;
+        fields.FLAG = flag;
+        fields.path = path;
+    }
     public entry create(Path name,String Oid,BasicFileAttributes stat){
         fields.path = name.toString();
         fields.FLAG = (short)Math.min(fields.path.getBytes().length, MAX_FILE_SIZE);

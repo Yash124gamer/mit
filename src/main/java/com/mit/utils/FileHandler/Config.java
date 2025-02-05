@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Config {
     public Path config_path;
@@ -26,16 +27,22 @@ public class Config {
     public String getEmail(){
         return this.email;
     }
-    public void createEntries(String name,String email){
+    public void createEntries(){
         File fu = new File(config_path);
+        Scanner scan = new Scanner(System.in);
         if(exist()){
             List<String> data = new ArrayList<>();
+            System.out.println("Please Enter your Name");
+            String name = scan.nextLine();
+            System.out.println("Please Enter your Email");
+            String email = scan.nextLine();
             data.add(name);
             data.add(email);
             this.name = name;
             this.email = email; 
             fu.writeData(data);
         }
+        scan.close();
     }
     public void getData(){
         File fu = new File(config_path);

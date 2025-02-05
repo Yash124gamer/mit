@@ -67,6 +67,13 @@ public class File {
             System.err.println("Error renaming file: " + e.getMessage());
         }
     }
+    public byte[] readData(Path fileName){
+        try {
+            return Files.readAllBytes(name.resolve(fileName));
+        } catch (Exception e) {
+            throw new RuntimeException("Error reading File",e);
+        }
+    }
     public List<String> readData(){
         try {
             return Files.readAllLines(this.name);

@@ -10,16 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import utils.Database.Entry;
+import utils.Database.Entry;   
 import utils.FileHandler.File;
 import core.Lockfile;
 
 public class Index {
     private Path path;
     // private Map<String,entry> entries = new HashMap<>();
-    private Map<String, entry> entries = new TreeMap<>();
+    public Map<String, entry> entries = new TreeMap<>();
     private Lockfile lock;
-    private boolean changed;         // Used to know if Files in the working area are different than files in Staging area
 
     public Index(Path path){
         checkFile(path);
@@ -53,7 +52,6 @@ public class Index {
                     lock.write(bf);
                 });
                 lock.commit();
-                changed = false; // All the changes in working area are now added to Index(Staging area)
             }
             
         } catch (Exception e) {
@@ -61,8 +59,37 @@ public class Index {
             System.exit(0);
         }
     }
-    public void load_update(){
-        load();
+    // Function that will read entries from Index file and return them as list with their respective Path
+    public TreeMap<String,entry> load_update(){
+        TreeMap<String,entry> list = new TreeMap<>();
+        try {
+            byte[] fileData = Files.readAllBytes(path);
+            if (fileData.length == 0){
+                return list;
+            }
+            int entry_count = read_entryCount(fileData);
+            int pointer = 8;
+            for (int i=0;i<entry_count;i++){
+                long Mtime = read_Mtime(fileData,pointer);
+                pointer+=8;
+                long Ctime = read_Mtime(fileData,pointer);
+                pointer+=8;
+                int mode = read_mode(fileData,pointer);
+                pointer+=4;
+                String id = read_oid(fileData, pointer);
+                pointer+=20;
+                int size = read_mode(fileData,pointer);
+                pointer+=4;
+                short flag = (short)read_fileLength(fileData, pointer-44);
+                pointer+=2;
+                String fileName = read_fileName(fileData, pointer, flag);
+                pointer+=flag;
+                list.put(fileName, new entry(Mtime, Ctime, mode, size, id, flag, fileName));
+            }                            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
     // Funtion that will read FilePath and their Object Id from the Index File
     public List<Entry> load(){
@@ -74,7 +101,7 @@ public class Index {
             }
             int entry_count = read_entryCount(fileData);
             int pointer = 8;
-            for (int i=1;i<=entry_count;i++){
+            for (int i=0;i<entry_count;i++){
                 int fileLength = read_fileLength(fileData, pointer);
                 entries.add(new Entry(Paths.get(read_fileName(fileData, pointer+46, fileLength)),read_oid(fileData, pointer+20)));
                 pointer+=fileLength+46;
@@ -115,6 +142,11 @@ public class Index {
     private int read_fileLength(byte[] data,int cuurentPointer){
         return ByteBuffer.wrap(data, cuurentPointer+44, 2).getShort();
     }
-
-
+    // Funtion that returns Last Modified time of a File from Index
+    private long read_Mtime(byte[] data,int currentPointer){
+        return ByteBuffer.wrap(data,currentPointer,8).getLong();
+    }
+    private int read_mode(byte[] data,int currentPointer){
+        return ByteBuffer.wrap(data,currentPointer,4).getInt();
+    }
 }
