@@ -92,16 +92,4 @@ public class Tree extends MitObjects{
             }
         }
     }
-     // Print the tree (for testing)
-    public void printTree(String treeName) {
-        System.out.println(treeName + " TREE:");
-        for (Map.Entry<Path, MitObjects> entry : entries.entrySet()) {
-            if (entry.getValue() instanceof Entry) {
-                System.out.println(entry.getKey() + " -> Entry(" + ((Entry) entry.getValue()).getOid() + ")");
-            } else {
-                ((Tree)entry.getValue()).printTree(entry.getKey().toString());
-            }
-        }
-        System.out.println();
-    }
 }

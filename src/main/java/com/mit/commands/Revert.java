@@ -14,6 +14,7 @@ public class Revert {
     public Revert(Path path){
         currentPath = path;
         repo = new Repository(path);
+        repo.initialise();
     }
     public void run(String[] dir){
         // Cheking if provided File path is correct or not

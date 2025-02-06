@@ -25,4 +25,7 @@ public class Commit extends MitObjects{
         str.append(message+"\n");
         return str.toString();
     }
+    public byte[] toBytes(){
+       return toString().getBytes();
+    }
 }

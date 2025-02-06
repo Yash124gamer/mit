@@ -60,7 +60,7 @@ public class Entry extends MitObjects{
     public byte[] toBytes(){
         String header = stat+" "+name.getFileName()+"\0";
         ByteBuffer buffer = ByteBuffer.allocate(header.length()+21);
-        buffer.put(header.getBytes());
+        buffer.put(header.getBytes(UTF_8));
         buffer.put(hex_to_byte(getOid()));
         return buffer.array();
     }

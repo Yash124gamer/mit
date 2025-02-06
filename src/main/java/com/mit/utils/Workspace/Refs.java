@@ -38,9 +38,9 @@ public class Refs {
     public String read_head(){
         if(Files.exists(head_path())){
             try {
-                return new String(Files.readAllBytes(head_path()));
+                return new String(Files.readAllBytes(head_path()),"UTF-8");
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
         }
         return null;

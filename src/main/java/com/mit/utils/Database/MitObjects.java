@@ -1,8 +1,12 @@
 package utils.Database;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 public abstract class MitObjects {
     public String data;
     private String Oid;
+    public final Charset UTF_8 = StandardCharsets.UTF_8;
 
     public MitObjects(){
         

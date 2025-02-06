@@ -10,7 +10,7 @@ public class Blob extends MitObjects{
         return "blob";
     }
     public byte[] toBytes(){
-        return this.data.getBytes();
+        return this.data.getBytes(UTF_8);
     }
 
 }

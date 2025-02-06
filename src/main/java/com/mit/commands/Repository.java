@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 
 import utils.Database.Database;
 import utils.Workspace.Index;
+import utils.Workspace.Refs;
 import utils.Workspace.Workspace;
 
 public class Repository {
@@ -15,8 +16,15 @@ public class Repository {
     public Repository(String repository_path){
         this.repository_path = Paths.get(repository_path);
     }
+    public void initialise(){
+        DATABASE  = new Database(repository_path.resolve(".mit/objects"));
+        WORKSPACE = new Workspace(repository_path);
+        INDEX     = new Index(repository_path.resolve(".mit"));
+        REFS      = new Refs(repository_path.resolve(".mit"));
+    }
 
-    public final Database  DATABASE  = new Database(repository_path.resolve("/.mit/objects"));
-    public final Workspace WORKSPACE = new Workspace(repository_path);
-    public final Index     INDEX     = new Index(repository_path.resolve("/.mit"));
+    public  Database  DATABASE;
+    public  Workspace WORKSPACE;
+    public  Index     INDEX;
+    public  Refs      REFS;
 }

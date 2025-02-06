@@ -15,7 +15,8 @@ public class Add {
 
     public Add(Path path){
         currentPath = path;
-        new Repository(path);
+        repo = new Repository(path);
+        repo.initialise();
     }
     
     /**
