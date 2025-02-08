@@ -41,7 +41,7 @@ public class Database {
         fu.createDirectories(new String[]{dir});
         fu.createFile(tempname,path.resolve(dir));
         byte[] compressedContent = compress(content);
-        fu.writeData(compressedContent, path.resolve(dir).resolve(tempname));
+        fu.writeData(content, path.resolve(dir).resolve(tempname));
         fu.renameFile(path.resolve(dir).resolve(tempname),path.resolve(dir).resolve(file));
     }
     private String tempFileName() {
@@ -97,8 +97,13 @@ public class Database {
     }
     public byte[] readObject(String Oid){
         try {
-            byte[] data = decompress(Files.readAllBytes(path.resolve(Oid.substring(0, 2)+"/"+Oid.substring(2))));
-            return Arrays.copyOfRange(data, 7, data.length);
+            // byte[] data = decompress(Files.readAllBytes(path.resolve(Oid.substring(0, 2)+"/"+Oid.substring(2))));
+            byte[] data = Files.readAllBytes(path.resolve(Oid.substring(0, 2)+"/"+Oid.substring(2)));
+            if (data[7] == 0){
+                return Arrays.copyOfRange(data, 8, data.length);      // For tree or blob objects
+            }else{
+                return Arrays.copyOfRange(data, 9, data.length);      // For commit objects
+            }
         } catch (Exception e) {
             throw new RuntimeException("Error while reading data from the object file",e);
         }

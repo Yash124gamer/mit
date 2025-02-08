@@ -3,7 +3,6 @@ package commands;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Scanner;
 
@@ -57,19 +56,19 @@ public class Commit {
         repo.DATABASE.store(cm);                               // Storing the Commit object
         repo.REFS.update_head(cm.getOid());
         System.out.println(cm.toString());          // Printing out the commit with message
-        if (parent == null) {
+        if (parent.equals("")) {
             System.out.println("root-commit");
         }
     }
     // Funtion that will return the previous commit's tree object id
     private String get_prevoius_tree(){
         String data = repo.REFS.read_head();
-        if (data == null){
+        if (data == null || data.equals("")){
             return "";
         }
         byte[] commitBytes = repo.DATABASE.readObject(data);
         byte[] prevTree = new byte[40];
-        System.arraycopy(commitBytes, 8, prevTree, 0, 40);
+        System.arraycopy(commitBytes, 6, prevTree, 0, 40);
         return new String(prevTree , StandardCharsets.UTF_8);
     }
 }

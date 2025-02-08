@@ -3,6 +3,9 @@ package utils.Database;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -10,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
 
 public class Tree extends MitObjects{
     public Map<Path, MitObjects> entries = new HashMap<>();
@@ -91,5 +95,63 @@ public class Tree extends MitObjects{
                 }
             }
         }
+    }
+    public List<Entry> parse(byte[] data,String parent){
+        List<Entry> entry_list = new ArrayList<>();
+        int pointer = 0;
+        while (pointer < data.length){
+            boolean isDirectory = false;
+            String mode;
+            // Reading File mode
+            if (data[pointer] == (byte)'4'){
+                isDirectory = true;
+                mode = read_string(data, pointer, 5);
+                pointer+=6;
+            }else{
+                mode = read_string(data, pointer, 6);
+                pointer+=7;
+            }
+            int end = pointer;
+            // Reading File path
+            while (end < data.length && data[end] != 0) {
+                end++;
+            }
+            String file_name = new String(data, pointer, end - pointer, UTF_8);
+            pointer+=(end-pointer)+1;
+            // Reading File object Id
+            String oid = toHex(Arrays.copyOfRange(data, pointer, pointer + 20));
+            pointer+=21;
+            if(isDirectory){
+                // Database db = new Database(Paths.get(System.getProperty("user.dir")+"/.mit/objects"));
+                Database db = new Database(Paths.get("D:/workspace/first-repo/.mit/objects"));
+                entry_list.addAll(parse(db.readObject(oid),file_name+"/"));
+            }else{
+                entry_list.add(new Entry(Paths.get(parent+file_name), oid , mode));
+            }
+        }
+        return entry_list;
+    }
+    private String toHex(byte[] data) {
+        StringBuilder hexString = new StringBuilder(40);
+        for (byte b : data) {
+            hexString.append(String.format("%02x", b));
+        }
+        return hexString.toString();
+    }    
+    private String read_string(byte[] data , int offset , int size){
+        byte[] temp = new byte[size];
+        System.arraycopy(data, offset, temp, 0, size);
+        return new String(temp , UTF_8);
+    }
+    public void printTree(String treeName) {
+        System.out.println(treeName + " TREE:");
+        for (Map.Entry<Path, MitObjects> entry : entries.entrySet()) {
+            if (entry.getValue() instanceof Entry) {
+                System.out.println(entry.getKey() + " -> Entry(" + ((Entry) entry.getValue()).getOid() + ")");
+            } else {
+                ((Tree)entry.getValue()).printTree(entry.getKey().toString());
+            }
+        }
+        System.out.println();
     }
 }

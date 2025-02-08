@@ -22,6 +22,11 @@ public class Entry extends MitObjects{
         this.name = name;
         this.stat = "40000";
     }
+    public Entry(Path name,String Oid,String mode){
+        setOid(Oid);
+        this.name = name;
+        this.stat = mode;
+    }
     public String getName(){
         return this.name.toString();
     }
