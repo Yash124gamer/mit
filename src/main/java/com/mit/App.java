@@ -5,6 +5,7 @@ import commands.Add;
 import commands.Commit;
 import commands.Init;
 import commands.Revert;
+import commands.Status;
 
 class App{
     public static void main(String[] args) {
@@ -33,6 +34,10 @@ class App{
             case "revert":
                 Revert revert = new Revert(currentPath);
                 revert.run(args);
+            break;
+            case "status":
+                Status status = new Status(currentPath);
+                status.run();
             break;
             // If User provides an unknown command
             default:
