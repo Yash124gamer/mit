@@ -99,8 +99,8 @@ public class Database {
         try {
             byte[] data = decompress(Files.readAllBytes(path.resolve(Oid.substring(0, 2)+"/"+Oid.substring(2))));
             // byte[] data = Files.readAllBytes(path.resolve(Oid.substring(0, 2)+"/"+Oid.substring(2)));
-            if (data[7] == 0){
-                return Arrays.copyOfRange(data, 8, data.length);      // For tree or blob objects
+            if (data[0] != (byte)'c'){
+                return Arrays.copyOfRange(data, 7, data.length);      // For tree or blob objects
             }else{
                 return Arrays.copyOfRange(data, 9, data.length);      // For commit objects
             }

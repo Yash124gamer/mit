@@ -1,14 +1,15 @@
 package commands;
 
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import utils.Hasher;
 import utils.Workspace.entry;
 
 public class Status {
@@ -33,9 +34,9 @@ public class Status {
                 continue;
             }
             String fileName = file.toString();
-            BasicFileAttributes stats = readStat(file);
+            String fileHash = get_fileHash(file);
             if (index_list.get(fileName) != null){
-                if (!(stats.lastModifiedTime().toMillis() == index_list.get(fileName).fields.MTIME)){
+                if (!(index_list.get(fileName).fields.OID.equals(fileHash))){
                     System.out.println(YELLOW+file.getFileName()+" Modified"+RESET);
                 }
             }else{
@@ -49,18 +50,14 @@ public class Status {
                 System.out.println(RED + key + " Deleted" + RESET);
             }
         }
-      
     }
-    // Funtion that will read and return a File's Attributes.
-    private BasicFileAttributes readStat(Path file){
-        try {
-            return Files.readAttributes(currentPath.resolve(file), BasicFileAttributes.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Error reading Attributes of "+file,e);
-        }
-    }
-    public static void main(String[] args){
-        Status st = new Status(Paths.get("D:/workspace/first-repo"));
-        st.run();
+    // funtion to calculate hash of the content of a given file Path
+    private String get_fileHash(Path file){
+        byte[] fileContent = repo.WORKSPACE.readFile(file).getBytes();
+        byte[] header = ("blob "+fileContent.length+"\0").getBytes();
+        ByteBuffer buffer = ByteBuffer.allocate(header.length + fileContent.length);
+        buffer.put(header);
+        buffer.put(fileContent);
+        return Hasher.hash(buffer.array());
     }
 }
