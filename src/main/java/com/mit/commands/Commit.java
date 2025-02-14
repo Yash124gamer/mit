@@ -1,6 +1,5 @@
 package commands;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -36,7 +35,7 @@ public class Commit {
         root.entries = root.sortEntriesByPathName(root.entries);
         root.Traverse(tree -> repo.DATABASE.store(tree));    // Storing the tree object
         // Checking if same tree doesn't get commited twice
-        if (root.getOid().equals(get_prevoius_tree())){
+        if (root.getOid().equals(repo.REFS.get_prevoius_tree())){
             System.out.println("Changes already commited");
             return;
         }
@@ -59,16 +58,5 @@ public class Commit {
         if (parent.equals("")) {
             System.out.println("root-commit");
         }
-    }
-    // Funtion that will return the previous commit's tree object id
-    private String get_prevoius_tree(){
-        String data = repo.REFS.read_head();
-        if (data == null || data.equals("")){
-            return "";
-        }
-        byte[] commitBytes = repo.DATABASE.readObject(data);
-        byte[] prevTree = new byte[40];
-        System.arraycopy(commitBytes, 6, prevTree, 0, 40);
-        return new String(prevTree , StandardCharsets.UTF_8);
     }
 }

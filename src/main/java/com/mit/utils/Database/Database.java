@@ -98,14 +98,13 @@ public class Database {
     public byte[] readObject(String Oid){
         try {
             byte[] data = decompress(Files.readAllBytes(path.resolve(Oid.substring(0, 2)+"/"+Oid.substring(2))));
-            // byte[] data = Files.readAllBytes(path.resolve(Oid.substring(0, 2)+"/"+Oid.substring(2)));
-            if (data[0] != (byte)'c'){
-                return Arrays.copyOfRange(data, 7, data.length);      // For tree or blob objects
-            }else{
-                return Arrays.copyOfRange(data, 9, data.length);      // For commit objects
-            }
+                int pointer=0;
+                while(data[pointer] != 0){
+                    pointer++;
+                }
+                return Arrays.copyOfRange(data, pointer+1, data.length);
         } catch (Exception e) {
-            throw new RuntimeException("Error while reading data from the object file",e);
+            throw new RuntimeException("Error while reading data from the object file "+Oid,e);
         }
     }
 }

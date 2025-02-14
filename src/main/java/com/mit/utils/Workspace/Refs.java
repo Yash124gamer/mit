@@ -1,10 +1,12 @@
 package utils.Workspace;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import core.Lockfile;
+import utils.Database.Database;
 
 public class Refs {
     private Path pathname;
@@ -43,6 +45,22 @@ public class Refs {
                 e.printStackTrace();
             }
         }
-        return null;
+        return "";
+    }
+    // Funtion that will return the previous commit's tree object id
+    public String get_prevoius_tree(){
+        String data = read_head();
+        Database db = new Database(pathname.resolve("objects"));
+        if (data == null || data.equals("")){
+            return "";
+        }
+        byte[] commitBytes = db.readObject(data);
+        byte[] prevTree = new byte[40];
+        int pointer=0;
+        while(commitBytes[pointer] != (byte)' '){
+            pointer++;
+        }
+        System.arraycopy(commitBytes, pointer+1, prevTree, 0, 40);
+        return new String(prevTree , StandardCharsets.UTF_8);
     }
 }
