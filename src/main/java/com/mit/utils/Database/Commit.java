@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 public class Commit extends MitObjects{
-    private String message,parent;
+    public String message,parent;
     private Tree tree;
     private Author author;
 
@@ -48,16 +48,21 @@ public class Commit extends MitObjects{
         buffer.put(messageBytes);
        return buffer.array();
     }
-    public void parse(byte[] data){
+    public void parse(byte[] data,String oid){
         // Database db = new Database(Paths.get(System.getProperty("user.dir")+"/.mit/objects"));
         Database db = new Database(Paths.get("D:/workspace/first-repo/.mit/objects"));
         byte[] treeBytes = new byte[40];
-        System.arraycopy(data, 6, treeBytes, 0, 40);
+        int pointer=0;
+        while(data[pointer] != (byte)' '){
+            pointer++;
+        }
+        System.arraycopy(data, pointer+1, treeBytes, 0, 40);
         String treeID = new String(treeBytes,UTF_8);
         this.tree.setOid(treeID);
         this.tree.buildTree(this.tree.parse(db.readObject(treeID),""));
-        this.tree.printTree("ROOT");
         this.message = readMessage(data);
+        this.parent = read_prev_commit(data,pointer+42);
+        this.setOid(oid);
     }
     private String readMessage(byte[] data){
         int pointer = data.length-2;
@@ -65,5 +70,16 @@ public class Commit extends MitObjects{
             pointer--;
         }
         return new String((Arrays.copyOfRange(data, pointer, data.length)),UTF_8);
+    }
+    private String read_prev_commit(byte[] data,int pointer){
+        if (data[pointer] != (byte)'p'){
+            return "";
+        }
+        while(data[pointer] != (byte)' '){
+            pointer++;
+        }
+        byte[] prev_commit = new byte[40];
+        System.arraycopy(data, pointer+1, prev_commit, 0, 40);
+        return new String(prev_commit,UTF_8);
     }
 }
