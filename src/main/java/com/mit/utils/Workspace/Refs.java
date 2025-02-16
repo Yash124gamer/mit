@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 import core.Lockfile;
 import utils.Database.Database;
@@ -48,13 +49,12 @@ public class Refs {
         return "";
     }
     // Funtion that will return the previous commit's tree object id
-    public String get_prevoius_tree(){
-        String data = read_head();
+    public String get_prevoius_tree(String commit_id){
         Database db = new Database(pathname.resolve("objects"));
-        if (data == null || data.equals("")){
+        if (commit_id == null || commit_id.equals("")){
             return "";
         }
-        byte[] commitBytes = db.readObject(data);
+        byte[] commitBytes = db.readObject(commit_id);
         byte[] prevTree = new byte[40];
         int pointer=0;
         while(commitBytes[pointer] != (byte)' '){
@@ -62,5 +62,23 @@ public class Refs {
         }
         System.arraycopy(commitBytes, pointer+1, prevTree, 0, 40);
         return new String(prevTree , StandardCharsets.UTF_8);
+    }
+
+    public String get_previous_commit(String commit_id){
+        Database db = new Database(pathname.resolve("objects"));
+        byte[] commit_bytes = db.readObject(commit_id);
+        int null_count = 0;
+        int pointer = 0;
+        while (null_count >= 2){
+            if(commit_bytes[pointer] == 0)
+                null_count++;
+        }
+        if(!(commit_bytes[pointer] == (byte)'p')){
+            return "";
+        }
+        while (commit_bytes[pointer] != 0){
+            pointer++;
+        }
+        return new String(Arrays.copyOfRange(commit_bytes, pointer+1, pointer+41) , StandardCharsets.UTF_8);
     }
 }

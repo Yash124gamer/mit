@@ -92,4 +92,11 @@ public class File {
 
         }
     }
+    public void deleteFile(Path filePath){
+        try {
+            Files.delete(name.resolve(filePath));
+        } catch (Exception e) {
+            System.err.println("Error deleting file: " + e.getMessage());
+        }
+    }
 }

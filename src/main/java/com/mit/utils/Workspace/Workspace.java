@@ -3,6 +3,7 @@ package utils.Workspace;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -10,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import utils.Hasher;
 
 public class Workspace {
     public Path path;
@@ -55,5 +58,13 @@ public class Workspace {
         }
 
         return content.toString();
+    }
+    public String get_fileHash(Path file) {
+        byte[] fileContent = readFile(file).getBytes();
+        byte[] header = ("blob " + fileContent.length + "\0").getBytes();
+        ByteBuffer buffer = ByteBuffer.allocate(header.length + fileContent.length);
+        buffer.put(header);
+        buffer.put(fileContent);
+        return Hasher.hash(buffer.array());
     }
 }

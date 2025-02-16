@@ -3,7 +3,9 @@ import java.nio.file.Paths;
 
 import commands.Add;
 import commands.Commit;
+import commands.Restore;
 import commands.Init;
+import commands.Logs;
 import commands.Revert;
 import commands.Status;
 
@@ -38,6 +40,14 @@ class App{
             case "status":
                 Status status = new Status(currentPath);
                 status.run();
+            break;
+            case "restore":
+                Restore restore = new Restore(currentPath);
+                restore.run(args);
+            break;
+            case "logs":
+                Logs logs = new Logs(currentPath);
+                logs.run();
             break;
             // If User provides an unknown command
             default:

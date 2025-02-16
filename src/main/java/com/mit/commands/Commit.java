@@ -35,7 +35,7 @@ public class Commit {
         root.entries = root.sortEntriesByPathName(root.entries);
         root.Traverse(tree -> repo.DATABASE.store(tree));    // Storing the tree object
         // Checking if same tree doesn't get commited twice
-        if (root.getOid().equals(repo.REFS.get_prevoius_tree())){
+        if (root.getOid().equals(repo.REFS.get_prevoius_tree(repo.REFS.read_head()))){
             System.out.println("Changes already commited");
             return;
         }
