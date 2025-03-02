@@ -16,6 +16,7 @@ public class Status {
     private final String RESET = "\u001B[0m";
     private final String RED = "\u001B[31m";
     private final String YELLOW = "\u001B[33m";
+    private final String GREEN = "\033[32m";
 
     public Status(Path path){
         currentPath = path;
@@ -35,17 +36,18 @@ public class Status {
             String fileHash = repo.WORKSPACE.get_fileHash(file);
             if (index_list.get(fileName) != null){
                 if (!(index_list.get(fileName).fields.OID.equals(fileHash))){
-                    System.out.println(YELLOW+file.getFileName()+" Modified"+RESET);
+                    System.out.println(YELLOW + String.format("%-30s "+ "%s", file.getFileName(), "Modified") + RESET);
                 }
             }else{
-                System.out.println(YELLOW+file.getFileName()+" Untracked"+RESET);
+                System.out.println(GREEN + String.format("%-30s "+ "%s", file.getFileName(), "Untracked") + RESET);
+                // System.out.println(GREEN+file.getFileName()+" Untracked"+RESET);
             }
         }
         // Loop for finding delted files
         Set<Path> workingSet = new HashSet<>(working_list);
         for (String key : index_list.keySet()) {
             if (!workingSet.contains(Paths.get(key))) { 
-                System.out.println(RED + key + " Deleted" + RESET);
+                System.out.println(RED + String.format("%-30s "+ "%s", key, "Deleted") + RESET);
             }
         }
     }

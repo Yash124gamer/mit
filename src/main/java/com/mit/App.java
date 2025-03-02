@@ -3,6 +3,7 @@ import java.nio.file.Paths;
 
 import commands.Add;
 import commands.Commit;
+import commands.Diff;
 import commands.Restore;
 import commands.Init;
 import commands.Logs;
@@ -48,6 +49,10 @@ class App{
             case "logs":
                 Logs logs = new Logs(currentPath);
                 logs.run();
+            break;
+            case "diff":
+                Diff diff = new Diff(currentPath);
+                diff.run(args);
             break;
             // If User provides an unknown command
             default:
