@@ -3,7 +3,7 @@ package commands;
 import java.nio.file.Path;
 import utils.FileHandler.File;
 
-public class Init {
+public class Init implements Command{
     private Path currentPath;
 
     public Init(Path path){

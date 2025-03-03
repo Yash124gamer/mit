@@ -6,14 +6,14 @@ import utils.Database.Commit;
 import utils.Database.Tree;
 
 
-public class Logs {
+public class Logs implements Command{
     private Repository repo;
 
     public Logs(Path current_path){
         repo = new Repository(current_path);
         repo.initialise();
     }
-    public void run(){
+    public void run(String[] args){
         String current_head = repo.REFS.read_head();
         if (current_head.equals("")){
             System.out.println("There are no commits");

@@ -8,7 +8,7 @@ import utils.Database.Entry;
 import utils.Database.Tree;
 import utils.FileHandler.File;
 
-public class Restore {
+public class Restore implements Command{
     private Path currentPath;
     private Repository repo;
     private File file_handler;

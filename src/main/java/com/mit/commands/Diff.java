@@ -10,7 +10,7 @@ import core.FileDiff;
 import utils.Database.Entry;
 import utils.Database.Tree;
 
-public class Diff {
+public class Diff implements Command{
     private Repository repo;
     private Path currentPath;
     private FileDiff diff;

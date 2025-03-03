@@ -7,7 +7,7 @@ import java.util.List;
 import utils.Database.Entry;
 import utils.FileHandler.File;
 
-public class Revert {
+public class Revert implements Command{
     private Path currentPath;
     private Repository repo;
 

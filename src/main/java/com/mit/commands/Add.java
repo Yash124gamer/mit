@@ -9,7 +9,7 @@ import java.util.Map;
 import utils.Database.Blob;
 import utils.Workspace.entry;
 
-public class Add {
+public class Add implements Command{
     private Path currentPath;
     private Repository repo;
 

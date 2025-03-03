@@ -10,7 +10,7 @@ import java.util.Set;
 
 import utils.Workspace.entry;
 
-public class Status {
+public class Status implements Command{
     private Path currentPath;
     private Repository repo;
     private final String RESET = "\u001B[0m";
@@ -23,7 +23,7 @@ public class Status {
         repo = new Repository(path);
         repo.initialise();
     }
-    public void run(){
+    public void run(String[] args){
         List<Path> working_list = repo.WORKSPACE.listFiles();
         Map<String,entry> index_list = repo.INDEX.load_update();
         // Iterating Over List of files from Working area and comparing them with files in staging area to see which files changed 

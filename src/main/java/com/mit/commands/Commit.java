@@ -10,7 +10,7 @@ import utils.Database.Entry;
 import utils.Database.Tree;
 import utils.FileHandler.Config;
 
-public class Commit {
+public class Commit implements Command{
     private Path currentPath;
     private Repository repo;
 
