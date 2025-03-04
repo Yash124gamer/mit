@@ -3,6 +3,7 @@ package commands;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,6 +38,7 @@ public class Diff implements Command{
         }
         List<Entry> commit_Entries = new Tree().parse(repo.DATABASE.readObject(repo.REFS.get_prevoius_tree(commit_id)), "");
         List<Path> working_list = repo.WORKSPACE.listFiles();
+        List<Path> deleted_files = new ArrayList<>();
         boolean change = false;
         for (Entry entry : commit_Entries) {
             // If file in working area and commit area are similiar then skip
@@ -51,19 +53,34 @@ public class Diff implements Command{
                     diff.print(entry.getName(), current_file_lines, old_file_lines);
                 }
                 working_list.remove(entry.getPath());
+            }else{
+                deleted_files.add(entry.getPath());
             }
         }
+        // Printing all the newly added files
         if (!working_list.isEmpty()) {
             System.out.println("\n\033[1;32mNew Files Added:\033[0m"); // Bold Green Heading
             System.out.println("----------------------------------");
             for (Path path : working_list) {
-                System.out.println("\033[32m + " + path.toString() + "\033[0m");
+                if (!(Files.isDirectory(currentPath.resolve(path))))
+                    System.out.println("\033[32m + " + path.toString() + "\033[0m");
             }
             System.out.println("----------------------------------");
         }
         if(!change){
             System.out.println("No differences");
         }
+        // Printing all the deleted files
+        if (!deleted_files.isEmpty()) {
+            System.out.println("\n\u001B[1;31mFiles Deleted:\033[0m"); // Bold Red Heading
+            System.out.println("----------------------------------");
+            for (Path file : deleted_files) {
+                if (!(Files.isDirectory(currentPath.resolve(file))))
+                System.out.println("\u001B[31m - " + file.toString() + "\033[0m");
+            }
+            System.out.println("----------------------------------");
+        }
+        
     }
     private List<String> ToLines(byte[] decompressedData) {
         String content = new String(decompressedData, StandardCharsets.UTF_8);
